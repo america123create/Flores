@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Usuario - Masonite{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ========== USUARIO FORM PAGE ========== */
+.form-page {
+    padding: var(--spacing-2xl) 0;
+    min-height: 60vh;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.page-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-dark);
+}
+.page-title span { color: var(--color-primary); }
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-gray-500);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+    margin-bottom: var(--spacing-md);
+}
+.back-link:hover { color: var(--color-primary); }
+
+.form-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    border: 1px solid var(--color-gray-200);
+}
+
+.form-card-header {
+    background: linear-gradient(135deg, var(--color-dark) 0%, #2c2c3e 100%);
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.form-card-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(255,107,107,0.2);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.form-card-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+}
+.form-card-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 2px;
+}
+
+.form-section {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+.form-section:last-of-type { border-bottom: none; }
+
+.section-label {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-gray-200);
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--spacing-lg); }
+.form-group { margin-bottom: 0; }
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--color-dark);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.form-label .required { color: var(--color-primary); margin-left: 2px; }
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--color-dark);
+    transition: all var(--transition-fast);
+    background: white;
+    box-sizing: border-box;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255,107,107,0.1);
+}
+
+.form-input.error, .form-select.error { border-color: var(--color-danger); }
+
+.field-error {
+    font-size: 11px;
+    color: var(--color-danger);
+    margin-top: 4px;
+    display: none;
+    font-weight: 500;
+}
+
+.form-textarea { resize: vertical; min-height: 80px; }
+
+.password-wrapper { position: relative; }
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-gray-500);
+    font-size: 16px;
+    padding: 4px;
+}
+
+.form-hint {
+    font-size: 11px;
+    color: var(--color-gray-500);
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.form-footer {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    background: var(--color-gray-50);
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+    align-items: center;
+    border-top: 2px solid var(--color-gray-100);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 24px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 3px 12px rgba(255,107,107,0.35);
+}
+.btn-primary:hover { background: var(--color-primary-dark); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+    background: white;
+    color: var(--color-gray-700);
+    border: 1.5px solid var(--color-gray-300);
+}
+.btn-secondary:hover { border-color: var(--color-gray-500); color: var(--color-dark); }
+
+.api-error-banner {
+    background: rgba(220,53,69,0.08);
+    border: 1.5px solid var(--color-danger);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #b02a37;
+    display: none;
+    font-weight: 500;
+    margin: var(--spacing-lg) var(--spacing-2xl) 0;
+}
+
+@media (max-width: 768px) {
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .form-card-header { padding: var(--spacing-lg); }
+    .form-section { padding: var(--spacing-lg); }
+    .form-footer { padding: var(--spacing-lg); flex-direction: column-reverse; }
+    .btn { width: 100%; justify-content: center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="form-page">
+
+    <a href="{{ url_for('usuarios') }}" class="back-link">← Volver a Usuarios</a>
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Crear <span>Nuevo Usuario</span></h1>
+        <p style="color:var(--color-gray-500);font-size:14px;margin-top:4px;">Completa el formulario para registrar un nuevo usuario en el sistema</p>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="form-card-icon">➕</div>
+        <div>
+          <div class="form-card-title">Registro de Usuario</div>
+          <div class="form-card-subtitle">Los campos marcados con * son obligatorios</div>
+        </div>
+      </div>
+
+      <div class="api-error-banner" id="errBanner"></div>
+
+      <form id="formCrear" novalidate>
+        <!-- Información personal -->
+        <div class="form-section">
+          <div class="section-label">👤 Información Personal</div>
+          <div class="form-row" style="margin-bottom: var(--spacing-lg);">
+            <div class="form-group">
+              <label class="form-label">Nombre <span class="required">*</span></label>
+              <input type="text" class="form-input" id="c_nombre" placeholder="Ej: Juan" autocomplete="given-name">
+              <div class="field-error" id="fe_c_nombre"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Apellido <span class="required">*</span></label>
+              <input type="text" class="form-input" id="c_apellido" placeholder="Ej: García" autocomplete="family-name">
+              <div class="field-error" id="fe_c_apellido"></div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Teléfono <span class="required">*</span></label>
+              <input type="tel" class="form-input" id="c_telefono" placeholder="Ej: 5512345678" maxlength="15" autocomplete="tel">
+              <div class="field-error" id="fe_c_telefono"></div>
+              <div class="form-hint">Solo dígitos, entre 7 y 15 caracteres</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Fecha de nacimiento</label>
+              <input type="date" class="form-input" id="c_nacimiento" autocomplete="bday">
+              <div class="field-error" id="fe_c_nacimiento"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acceso -->
+        <div class="form-section">
+          <div class="section-label">🔐 Datos de Acceso</div>
+          <div class="form-group" style="margin-bottom: var(--spacing-lg);">
+            <label class="form-label">Correo electrónico <span class="required">*</span></label>
+            <input type="email" class="form-input" id="c_correo" placeholder="correo@ejemplo.com" autocomplete="email">
+            <div class="field-error" id="fe_c_correo"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Contraseña <span class="required">*</span></label>
+              <div class="password-wrapper">
+                <input type="password" class="form-input" id="c_password" placeholder="Mín. 8 caracteres" autocomplete="new-password">
+                <button type="button" class="password-toggle" onclick="togglePwd('c_password',this)">👁</button>
+              </div>
+              <div class="field-error" id="fe_c_password"></div>
+              <div class="form-hint">8+ chars, mayúscula, minúscula y número</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmar contraseña <span class="required">*</span></label>
+              <div class="password-wrapper">
+                <input type="password" class="form-input" id="c_confirm" placeholder="Repite la contraseña" autocomplete="new-password">
+                <button type="button" class="password-toggle" onclick="togglePwd('c_confirm',this)">👁</button>
+              </div>
+              <div class="field-error" id="fe_c_confirm"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rol y permisos -->
+        <div class="form-section">
+          <div class="section-label">🛡️ Rol y Permisos</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Rol <span class="required">*</span></label>
+              <select class="form-select" id="c_rol">
+                <option value="">— Selecciona un rol —</option>
+                <option value="admin">Administrador</option>
+                <option value="editor">Editor</option>
+                <option value="user">Usuario</option>
+                <option value="viewer">Visor (solo lectura)</option>
+              </select>
+              <div class="field-error" id="fe_c_rol"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado</label>
+              <select class="form-select" id="c_estado">
+                <option value="activo">✅ Activo</option>
+                <option value="inactivo">⛔ Inactivo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="form-section">
+          <div class="section-label">📍 Ubicación</div>
+          <div class="form-group" style="margin-bottom: var(--spacing-lg);">
+            <label class="form-label">Dirección</label>
+            <input type="text" class="form-input" id="c_direccion" placeholder="Calle, número, colonia..." autocomplete="street-address">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Ciudad</label>
+              <input type="text" class="form-input" id="c_ciudad" placeholder="Ej: Ciudad de México" autocomplete="address-level2">
+            </div>
+            <div class="form-group">
+              <label class="form-label">País</label>
+              <input type="text" class="form-input" id="c_pais" placeholder="Ej: México" autocomplete="country-name">
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas -->
+        <div class="form-section">
+          <div class="section-label">📝 Información Adicional</div>
+          <div class="form-group">
+            <label class="form-label">Notas internas</label>
+            <textarea class="form-textarea" id="c_notas" placeholder="Observaciones, contexto o información adicional sobre este usuario..." rows="3"></textarea>
+            <div class="form-hint">Visible solo para administradores</div>
+          </div>
+        </div>
+      </form>
+
+      <div class="form-footer">
+        <a href="{{ url_for('usuarios') }}" class="btn btn-secondary">✕ Cancelar</a>
+        <button class="btn btn-primary" id="btnCrear" onclick="submitCrear()">✓ Crear Usuario</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePwd(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+function fieldErr(field, msg) {
+    const el  = document.getElementById(`fe_c_${field}`);
+    const inp = document.getElementById(`c_${field}`);
+    if (el)  { el.textContent = msg; el.style.display = 'block'; }
+    if (inp) inp.classList.add('error');
+}
+
+function clearErrors() {
+    document.querySelectorAll('.field-error').forEach(el => { el.style.display='none'; el.textContent=''; });
+    document.querySelectorAll('.form-input, .form-select').forEach(el => el.classList.remove('error'));
+    document.getElementById('errBanner').style.display = 'none';
+}
+
+function validate() {
+    const get = f => (document.getElementById(`c_${f}`)?.value || '').trim();
+    let ok = true;
+
+    const nombre = get('nombre');
+    if (!nombre || nombre.length < 2) { fieldErr('nombre','Mínimo 2 caracteres'); ok=false; }
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) { fieldErr('nombre','Solo letras y espacios'); ok=false; }
+
+    const apellido = get('apellido');
+    if (!apellido || apellido.length < 2) { fieldErr('apellido','Mínimo 2 caracteres'); ok=false; }
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(apellido)) { fieldErr('apellido','Solo letras y espacios'); ok=false; }
+
+    const correo = get('correo');
+    if (!correo) { fieldErr('correo','El correo es obligatorio'); ok=false; }
+    else if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(correo)) { fieldErr('correo','Formato inválido (ej: usuario@dominio.com)'); ok=false; }
+
+    const tel = get('telefono');
+    if (!tel) { fieldErr('telefono','El teléfono es obligatorio'); ok=false; }
+    else if (!/^\d{7,15}$/.test(tel)) { fieldErr('telefono','Solo dígitos, 7–15 caracteres'); ok=false; }
+
+    if (!get('rol')) { fieldErr('rol','Selecciona un rol'); ok=false; }
+
+    const nac = get('nacimiento');
+    if (nac) {
+        const bd = new Date(nac); const hoy = new Date();
+        if (bd > hoy) { fieldErr('nacimiento','No puede ser fecha futura'); ok=false; }
+        else if ((hoy.getFullYear()-bd.getFullYear()) < 13) { fieldErr('nacimiento','El usuario debe tener al menos 13 años'); ok=false; }
+    }
+
+    const pwd = get('password'); const conf = get('confirm');
+    if (!pwd) { fieldErr('password','La contraseña es obligatoria'); ok=false; }
+    else if (pwd.length < 8) { fieldErr('password','Mínimo 8 caracteres'); ok=false; }
+    else if (!/[A-Z]/.test(pwd)) { fieldErr('password','Debe incluir una mayúscula'); ok=false; }
+    else if (!/[a-z]/.test(pwd)) { fieldErr('password','Debe incluir una minúscula'); ok=false; }
+    else if (!/\d/.test(pwd))    { fieldErr('password','Debe incluir un número'); ok=false; }
+    if (pwd && pwd !== conf) { fieldErr('confirm','Las contraseñas no coinciden'); ok=false; }
+
+    return ok;
+}
+
+async function submitCrear() {
+    clearErrors();
+    if (!validate()) return;
+
+    const get = f => (document.getElementById(`c_${f}`)?.value || '').trim();
+    const body = {
+        nombre: get('nombre'), apellido: get('apellido'),
+        correo: get('correo'), password: get('password'),
+        telefono: get('telefono'), nacimiento: get('nacimiento'),
+        rol: get('rol'), estado: document.getElementById('c_estado').value,
+        direccion: get('direccion'), ciudad: get('ciudad'),
+        pais: get('pais'), notas: get('notas')
+    };
+
+    const btn = document.getElementById('btnCrear');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    try {
+        const res = await fetch('/api/usuarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            // Redirigir a la lista con mensaje de éxito
+            window.location.href = "{{ url_for('usuarios') }}?success=creado&nombre=" + encodeURIComponent(data.nombre + ' ' + (data.apellido||''));
+        } else {
+            const banner = document.getElementById('errBanner');
+            banner.textContent = data.error || 'Error al crear el usuario';
+            banner.style.display = 'block';
+            btn.disabled = false; btn.textContent = '✓ Crear Usuario';
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+    } catch(e) {
+        const banner = document.getElementById('errBanner');
+        banner.textContent = 'Error de conexión. Intenta nuevamente.';
+        banner.style.display = 'block';
+        btn.disabled = false; btn.textContent = '✓ Crear Usuario';
+    }
+}
+
+// Enter key en inputs
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') submitCrear();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - BLZAOR{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ==============================
+   CARRUSEL
+   ============================== */
+.carousel-section {
+    margin-bottom: var(--spacing-3xl);
+}
+
+.section-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.section-label h2 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+.section-label a {
+    font-size: 13px;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: gap var(--transition-fast);
+}
+
+.section-label a:hover { gap: 10px; }
+
+/* Carousel container */
+.carousel-wrap {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    background: var(--color-dark);
+    aspect-ratio: 16 / 6;
+    min-height: 220px;
+}
+
+.carousel-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.55s cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+.carousel-slide {
+    min-width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 6s ease;
+}
+
+.carousel-slide.active img {
+    transform: scale(1.04);
+}
+
+.carousel-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-2xl) var(--spacing-xl) var(--spacing-xl);
+    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+    color: white;
+    transform: translateY(10px);
+    opacity: 0;
+    transition: all 0.4s ease 0.2s;
+}
+
+.carousel-slide.active .carousel-caption {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.carousel-caption h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.carousel-caption p {
+    font-size: 14px;
+    opacity: 0.85;
+    max-width: 600px;
+}
+
+/* Arrows */
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.carousel-arrow:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-arrow.prev { left: 16px; }
+.carousel-arrow.next { right: 16px; }
+
+/* Dots */
+.carousel-dots {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.carousel-dot.active {
+    background: white;
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* Empty carousel */
+.carousel-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: rgba(255,255,255,0.5);
+    gap: var(--spacing-md);
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.carousel-empty .empty-icon { font-size: 52px; }
+.carousel-empty p { font-size: 14px; }
+.carousel-empty a {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <h1 class="page-title">Panel de Control</h1>
+        <p class="page-subtitle">Bienvenido, <strong>{{ session.usuario }}</strong></p>
+    </div>
+
+    <!-- ==============================
+         CARRUSEL
+         ============================== -->
+    <div class="carousel-section">
+        <div class="section-label">
+            <h2>🖼️ Carrusel</h2>
+            <a href="{{ url_for('carrusel') }}">Administrar imágenes →</a>
+        </div>
+
+        <div class="carousel-wrap" id="carousel">
+            {% if carrusel_imagenes %}
+                <div class="carousel-track" id="carouselTrack">
+                    {% for img in carrusel_imagenes %}
+                    <div class="carousel-slide {% if loop.first %}active{% endif %}" data-index="{{ loop.index0 }}">
+                        <img src="{{ img.url }}" alt="{{ img.titulo }}" loading="lazy">
+                        <div class="carousel-caption">
+                            <h3>{{ img.titulo }}</h3>
+                            {% if img.descripcion %}<p>{{ img.descripcion }}</p>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if carrusel_imagenes | length > 1 %}
+                <button class="carousel-arrow prev" onclick="carouselMove(-1)" title="Anterior">&#8592;</button>
+                <button class="carousel-arrow next" onclick="carouselMove(1)"  title="Siguiente">&#8594;</button>
+
+                <div class="carousel-dots" id="carouselDots">
+                    {% for img in carrusel_imagenes %}
+                    <button class="carousel-dot {% if loop.first %}active{% endif %}"
+                            onclick="carouselGo({{ loop.index0 }})"
+                            title="{{ img.titulo }}"></button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="carousel-empty">
+                    <div class="empty-icon">🖼️</div>
+                    <p>No hay imágenes en el carrusel todavía.</p>
+                    <a href="{{ url_for('carrusel') }}">+ Subir primera imagen</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ==============================
+         CARDS
+         ============================== -->
+    <div class="dashboard-grid">
+        <div class="dashboard-card card-primary">
+            <div class="card-icon">🎀</div>
+            <h3 class="card-title">Tu Perfil</h3>
+            <p class="card-description">Ver y editar tu información personal</p>
+            <a href="{{ url_for('perfil') }}" class="card-link">Ver perfil <span>→</span></a>
+        </div>
+
+        <div class="dashboard-card card-secondary">
+            <div class="card-icon">🌈</div>
+            <h3 class="card-title">Usuarios</h3>
+            <p class="card-description">Gestiona los usuarios del sistema con CRUD completo</p>
+            <a href="{{ url_for('usuarios') }}" class="card-link">Administrar <span>→</span></a>
+        </div>
+
+        <div class="dashboard-card card-secondary">
+            <div class="card-icon">💅</div>
+            <h3 class="card-title">Carrusel</h3>
+            <p class="card-description">Sube, edita y elimina las imágenes del carrusel</p>
+            <a href="{{ url_for('carrusel') }}" class="card-link">Gestionar <span>→</span></a>
+        </div>
+
+        <div class="dashboard-card card-secondary">
+            <div class="card-icon">⚙</div>
+            <h3 class="card-title">Configuración</h3>
+            <p class="card-description">Ajusta las preferencias de tu cuenta</p>
+            <a href="{{ url_for('configuracion') }}" class="card-link">Configurar <span>→</span></a>
+        </div>
+
+
+        <div class="dashboard-card card-warning">
+            <div class="card-icon">⚠</div>
+            <h3 class="card-title">Prueba de Errores</h3>
+            <p class="card-description">Simula un error para ver el manejo</p>
+            <a href="{{ url_for('simular_error') }}" class="card-link">Simular error <span>→</span></a>
+        </div>
+    </div>
+
+    <div class="activity-section">
+        <h2 class="section-title">Actividad Reciente</h2>
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-dot"></div>
+                <div class="activity-content">
+                    <strong>Inicio de sesión exitoso</strong>
+                    <span class="activity-time">Hace unos momentos</span>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-dot"></div>
+                <div class="activity-content">
+                    <strong>Cuenta creada</strong>
+                    <span class="activity-time">Hoy</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const track  = document.getElementById('carouselTrack');
+    const dotsEl = document.getElementById('carouselDots');
+    if (!track) return;
+
+    const slides = Array.from(track.querySelectorAll('.carousel-slide'));
+    const dots   = dotsEl ? Array.from(dotsEl.querySelectorAll('.carousel-dot')) : [];
+    let current  = 0;
+    let timer    = null;
+    const AUTO   = 5000;
+
+    function goTo(idx) {
+        slides[current].classList.remove('active');
+        if (dots[current]) dots[current].classList.remove('active');
+
+        current = (idx + slides.length) % slides.length;
+        track.style.transform = `translateX(-${current * 100}%)`;
+
+        slides[current].classList.add('active');
+        if (dots[current]) dots[current].classList.add('active');
+    }
+
+    window.carouselMove = (dir) => { resetTimer(); goTo(current + dir); };
+    window.carouselGo   = (idx) => { resetTimer(); goTo(idx); };
+
+    function resetTimer() {
+        clearInterval(timer);
+        if (slides.length > 1) timer = setInterval(() => goTo(current + 1), AUTO);
+    }
+
+    // Swipe support
+    let startX = 0;
+    track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend',   e => {
+        const diff = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) { resetTimer(); goTo(current + (diff > 0 ? 1 : -1)); }
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft')  { resetTimer(); goTo(current - 1); }
+        if (e.key === 'ArrowRight') { resetTimer(); goTo(current + 1); }
+    });
+
+    resetTimer();
+})();
+</script>
+{% endblock %}

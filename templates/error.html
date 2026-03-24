@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}{{ error_title }} - Masoite{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-page">
+        <div class="error-content">
+            <div class="error-icon-wrapper">
+                <span class="error-code">{{ error_code }}</span>
+                <div class="error-decoration">
+                    <div class="error-circle"></div>
+                    <div class="error-circle"></div>
+                    <div class="error-circle"></div>
+                </div>
+            </div>
+            
+            <h1 class="error-title">{{ error_title }}</h1>
+            <p class="error-message">{{ error_message }}</p>
+            
+            <div class="error-actions">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <span>← Volver al inicio</span>
+                </a>
+                
+                {% if session.usuario %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                        <span>Ir al dashboard</span>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('registro') }}" class="btn btn-secondary">
+                        <span>Crear cuenta</span>
+                    </a>
+                {% endif %}
+            </div>
+            
+            <div class="error-help">
+                <h3>¿Necesitas ayuda?</h3>
+                <p>Si el problema persiste, aquí hay algunas cosas que puedes intentar:</p>
+                <ul class="help-list">
+                    <li>Verifica que la URL sea correcta</li>
+                    <li>Intenta refrescar la página</li>
+                    <li>Regresa a la página anterior</li>
+                    <li>Vuelve a iniciar sesión si es necesario</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="error-illustration">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ee5a6f;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- Fondo decorativo -->
+                <circle cx="200" cy="150" r="120" fill="url(#errorGradient)" opacity="0.1"/>
+                <circle cx="200" cy="150" r="90" fill="url(#errorGradient)" opacity="0.1"/>
+                
+                <!-- Señal de advertencia -->
+                <path d="M 200 80 L 260 180 L 140 180 Z" fill="url(#errorGradient)" opacity="0.8"/>
+                <circle cx="200" cy="150" r="8" fill="#fff"/>
+                <rect x="196" y="110" width="8" height="30" fill="#fff" rx="4"/>
+                
+                <!-- Elementos decorativos -->
+                <circle cx="100" cy="100" r="5" fill="#ff6b6b" opacity="0.3">
+                    <animate attributeName="r" values="5;8;5" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="300" cy="200" r="5" fill="#ee5a6f" opacity="0.3">
+                    <animate attributeName="r" values="5;8;5" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="150" cy="220" r="5" fill="#ff6b6b" opacity="0.3">
+                    <animate attributeName="r" values="5;8;5" dur="3s" repeatCount="indefinite"/>
+                </circle>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-page {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    padding: 60px 0;
+}
+
+.error-content {
+    flex: 1;
+    max-width: 600px;
+}
+
+.error-icon-wrapper {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.error-code {
+    font-family: 'Unbounded', cursive;
+    font-size: 120px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    line-height: 1;
+}
+
+.error-decoration {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.error-circle {
+    position: absolute;
+    border: 2px solid rgba(255, 107, 107, 0.3);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.error-circle:nth-child(1) {
+    width: 150px;
+    height: 150px;
+    top: -75px;
+    left: -75px;
+}
+
+.error-circle:nth-child(2) {
+    width: 200px;
+    height: 200px;
+    top: -100px;
+    left: -100px;
+    animation-delay: 0.5s;
+}
+
+.error-circle:nth-child(3) {
+    width: 250px;
+    height: 250px;
+    top: -125px;
+    left: -125px;
+    animation-delay: 1s;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 0.3; transform: scale(1); }
+}
+
+.error-title {
+    font-family: 'Unbounded', cursive;
+    font-size: 42px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+}
+
+.error-message {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.error-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.error-help {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 4px solid #ff6b6b;
+}
+
+.error-help h3 {
+    font-family: 'Unbounded', cursive;
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+}
+
+.error-help p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.help-list {
+    list-style: none;
+    padding: 0;
+}
+
+.help-list li {
+    color: #666;
+    padding: 8px 0;
+    padding-left: 25px;
+    position: relative;
+}
+
+.help-list li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #ff6b6b;
+}
+
+.error-illustration {
+    flex: 0 0 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-illustration svg {
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 968px) {
+    .error-page {
+        flex-direction: column;
+    }
+    
+    .error-illustration {
+        order: -1;
+        flex: 0 0 300px;
+    }
+    
+    .error-code {
+        font-size: 80px;
+    }
+    
+    .error-title {
+        font-size: 32px;
+    }
+}
+</style>
+{% endblock %}

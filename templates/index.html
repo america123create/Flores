@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - BLAZOR{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-home">
+
+    <div class="container">
+
+        <!-- 🔝 HEADER MODERNO -->
+        <div class="top-bar">
+            <h1 class="title">BLAZOR 💖</h1>
+
+            {% if session.usuario %}
+                <div class="user-info">
+                    👋 {{ session.usuario }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- 🎯 HERO REDISEÑADO -->
+        <div class="hero-card">
+            <h2 class="hero-modern-title">
+                Bienvenido a <span>BLAZOR</span>
+            </h2>
+
+            {% if session.usuario %}
+                <div class="hero-actions">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                        Ir al Dashboard →
+                    </a>
+                </div>
+            {% else %}
+                <div class="hero-actions">
+                    <a href="{{ url_for('registro') }}" class="btn btn-primary">
+                        Comenzar
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                        Iniciar sesión
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ⚡ ACCIONES RÁPIDAS -->
+        <div class="quick-actions">
+
+            <div class="action-card">
+                <h3>🚀 Explorar</h3>
+                <p>Accede a tu dashboard y gestiona tu contenido</p>
+                <a href="{{ url_for('dashboard') }}">Ir →</a>
+            </div>
+
+            <div class="action-card">
+                <h3>⚠ Pruebas</h3>
+                <p>Simula errores para probar el sistema</p>
+                <a href="{{ url_for('simular_error') }}">Probar →</a>
+            </div>
+
+            {% if not session.usuario %}
+            <div class="action-card">
+                <h3>💖 Únete</h3>
+                <p>Crea tu cuenta en segundos</p>
+                <a href="{{ url_for('registro') }}">Registrarme →</a>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

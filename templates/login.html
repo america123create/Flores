@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - WebApp{% endblock %}
+
+{% block extra_css %}
+<!-- CSS adicional para reCAPTCHA -->
+<style>
+.recaptcha-container {
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    justify-content: center;
+    transform: scale(0.95);
+    transform-origin: center;
+}
+
+@media (max-width: 500px) {
+    .recaptcha-container {
+        transform: scale(0.85);
+    }
+}
+
+.recaptcha-wrapper {
+    background: var(--color-gray-100);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 2px dashed var(--color-gray-300);
+    transition: all var(--transition-fast);
+}
+
+.recaptcha-wrapper:hover {
+    border-color: var(--color-primary);
+    background: rgba(255, 107, 107, 0.05);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-page">
+        <div class="form-header">
+            <h1 class="form-title">Bienvenido de vuelta</h1>
+            <p class="form-subtitle">Inicia sesión para continuar</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('login') }}" class="form-card" id="loginForm">
+            <!-- Campo Correo -->
+            <div class="form-group">
+                <label for="correo" class="form-label">
+                    Correo electrónico
+                    <span class="required">*</span>
+                </label>
+                <input 
+                    type="email" 
+                    id="correo" 
+                    name="correo" 
+                    class="form-input"
+                    placeholder="tu@ejemplo.com"
+                    required
+                    autocomplete="email">
+            </div>
+            
+            <!-- Campo Contraseña -->
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    Contraseña
+                    <span class="required">*</span>
+                </label>
+                <div class="password-wrapper">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input"
+                        placeholder="••••••••"
+                        required
+                        autocomplete="current-password">
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">
+                        <span class="eye-icon">👁</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Recordarme -->
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="recordar">
+                    <span class="checkbox-custom"></span>
+                    <span>Recordarme</span>
+                </label>
+            </div>
+            
+            <!-- ==========================================
+                 GOOGLE reCAPTCHA v2
+                 ========================================== -->
+            <div class="recaptcha-container">
+                <div class="recaptcha-wrapper">
+                    <div class="g-recaptcha" 
+                         data-sitekey="{{ recaptcha_site_key }}"
+                         data-callback="onRecaptchaSuccess"
+                         data-expired-callback="onRecaptchaExpired">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botón de envío -->
+            <button type="submit" class="btn btn-submit" id="loginSubmitBtn" disabled>
+                <span class="btn-text">Iniciar sesión</span>
+                <span class="btn-icon">→</span>
+            </button>
+            
+            <!-- Link a registro -->
+            <div class="form-footer">
+                <p>¿No tienes una cuenta? <a href="{{ url_for('registro') }}" class="link">Regístrate aquí</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Script de Google reCAPTCHA -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<script>
+// Variable para tracking del estado de reCAPTCHA
+let recaptchaCompleted = false;
+
+// Callback cuando reCAPTCHA se completa
+function onRecaptchaSuccess(response) {
+    recaptchaCompleted = true;
+    console.log('reCAPTCHA completado exitosamente');
+    actualizarBotonLogin();
+}
+
+// Callback cuando reCAPTCHA expira
+function onRecaptchaExpired() {
+    recaptchaCompleted = false;
+    console.log('reCAPTCHA expirado');
+    actualizarBotonLogin();
+}
+
+// Función para actualizar el estado del botón
+function actualizarBotonLogin() {
+    const correo = document.getElementById('correo').value;
+    const password = document.getElementById('password').value;
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    
+    // El botón se habilita solo si hay correo, password y reCAPTCHA completado
+    const formularioCompleto = correo && password && recaptchaCompleted;
+    
+    submitBtn.disabled = !formularioCompleto;
+    
+    if (formularioCompleto) {
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+    } else {
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+    }
+}
+
+// Toggle de visibilidad de contraseña
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.querySelector('.eye-icon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.textContent = '👁️‍🗨️';
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.textContent = '👁';
+    }
+}
+
+// Escuchar cambios en los campos del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const correoInput = document.getElementById('correo');
+    const passwordInput = document.getElementById('password');
+    
+    correoInput.addEventListener('input', actualizarBotonLogin);
+    passwordInput.addEventListener('input', actualizarBotonLogin);
+    
+    // Validación al enviar
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', function(e) {
+        if (!recaptchaCompleted) {
+            e.preventDefault();
+            alert('Por favor, completa la verificación de reCAPTCHA');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

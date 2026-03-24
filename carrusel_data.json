@@ -1,0 +1,18 @@
+[
+  {
+    "id": "6291018d-1b2b-45c8-93b9-5d49ace453aa",
+    "public_id": "masonite/carrusel/ecc496ae475a40168d95a50fd105982a",
+    "url": "https://res.cloudinary.com/dujr07pke/image/upload/v1774323594/masonite/carrusel/ecc496ae475a40168d95a50fd105982a.jpg",
+    "titulo": "miau y flores",
+    "descripcion": "",
+    "orden": 1
+  },
+  {
+    "id": "3a3d3cce-b5a7-433e-bedd-8d4f5dd82638",
+    "public_id": "masonite/carrusel/e230d4cc4fda42d48c482ea74569dfb3",
+    "url": "https://res.cloudinary.com/dujr07pke/image/upload/v1774329012/masonite/carrusel/e230d4cc4fda42d48c482ea74569dfb3.jpg",
+    "titulo": "floreEeEeS",
+    "descripcion": "",
+    "orden": 2
+  }
+]

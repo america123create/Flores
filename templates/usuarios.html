@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios -BLAZOR {% endblock %}
+
+{% block extra_css %}
+<style>
+.usuarios-page { padding: var(--spacing-2xl) 0; min-height: 60vh; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--spacing-xl); flex-wrap: wrap; gap: var(--spacing-md); }
+.page-title { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--color-dark); }
+.page-title span { color: var(--color-primary); }
+.kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+.kpi-card { background: white; border-radius: var(--radius-md); border: 1px solid var(--color-gray-200); padding: var(--spacing-lg); display: flex; align-items: center; gap: var(--spacing-md); box-shadow: var(--shadow-sm); transition: transform var(--transition-fast); }
+.kpi-card:hover { transform: translateY(-2px); }
+.kpi-icon { width: 44px; height: 44px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.kpi-icon.blue { background: rgba(59,130,246,0.12); }
+.kpi-icon.green { background: rgba(34,197,94,0.12); }
+.kpi-icon.orange { background: rgba(249,115,22,0.12); }
+.kpi-icon.red { background: rgba(239,68,68,0.12); }
+.kpi-value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; color: var(--color-dark); line-height: 1; }
+.kpi-label { font-size: 11px; color: var(--color-gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 3px; }
+.filter-panel { background: white; border-radius: var(--radius-md); border: 1px solid var(--color-gray-200); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-lg); overflow: hidden; }
+.filter-panel-header { padding: var(--spacing-md) var(--spacing-xl); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-gray-100); cursor: pointer; user-select: none; }
+.filter-panel-title { font-weight: 700; font-size: 13px; color: var(--color-dark); display: flex; align-items: center; gap: 8px; }
+.filter-panel-body { padding: var(--spacing-lg) var(--spacing-xl); }
+.filter-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: var(--spacing-md); align-items: end; }
+.filter-group { display: flex; flex-direction: column; gap: 5px; }
+.filter-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-gray-500); }
+.filter-input, .filter-select { padding: 9px 12px; border: 1.5px solid var(--color-gray-300); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 13px; color: var(--color-dark); background: white; transition: border-color var(--transition-fast); width: 100%; box-sizing: border-box; }
+.filter-input:focus, .filter-select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(255,107,107,0.1); }
+.active-filters { padding: var(--spacing-sm) var(--spacing-xl); background: rgba(255,107,107,0.05); border-top: 1px solid rgba(255,107,107,0.15); display: none; gap: 8px; flex-wrap: wrap; align-items: center; }
+.active-filters.visible { display: flex; }
+.filter-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; background: white; border: 1px solid var(--color-primary); color: var(--color-primary); border-radius: var(--radius-full); font-size: 11px; font-weight: 600; }
+.filter-chip button { background: none; border: none; color: var(--color-primary); cursor: pointer; font-size: 13px; line-height: 1; padding: 0; opacity: 0.7; }
+.filter-chip button:hover { opacity: 1; }
+.table-wrapper { background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-md); overflow: hidden; border: 1px solid var(--color-gray-200); }
+.table-toolbar { padding: var(--spacing-md) var(--spacing-xl); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-gray-100); flex-wrap: wrap; gap: var(--spacing-sm); }
+.result-count { font-size: 13px; color: var(--color-gray-500); }
+.per-page-select { padding: 5px 10px; border: 1px solid var(--color-gray-300); border-radius: var(--radius-sm); font-size: 12px; font-family: var(--font-body); color: var(--color-gray-700); cursor: pointer; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead { background: var(--color-dark); color: white; }
+thead th { padding: 12px 16px; text-align: left; font-family: var(--font-display); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; cursor: pointer; user-select: none; }
+thead th:hover { background: rgba(255,255,255,0.08); }
+thead th.sorted .sort-icon { opacity: 1 !important; }
+.sort-icon { margin-left: 4px; opacity: 0.4; }
+tbody tr { border-bottom: 1px solid var(--color-gray-100); transition: background var(--transition-fast); }
+tbody tr:hover { background: rgba(255,107,107,0.025); }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 13px 16px; color: var(--color-gray-700); vertical-align: middle; }
+.user-name-cell { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; font-family: var(--font-display); }
+.badge { display: inline-block; padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.badge-admin { background: rgba(255,107,107,0.15); color: #c0392b; }
+.badge-editor { background: rgba(78,205,196,0.15); color: #1a7a74; }
+.badge-user { background: rgba(107,207,127,0.15); color: #1e7e34; }
+.badge-viewer { background: rgba(255,179,71,0.15); color: #a0670a; }
+.badge-active { background: rgba(107,207,127,0.15); color: #1e7e34; }
+.badge-inactive { background: rgba(180,180,180,0.15); color: #666; }
+.actions-cell { display: flex; gap: 6px; align-items: center; }
+.btn-icon-sm { width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1.5px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all var(--transition-fast); background: none; text-decoration: none; }
+.btn-icon-sm:hover { transform: scale(1.1); }
+.btn-view { border-color: #3b82f6; color: #3b82f6; }
+.btn-view:hover { background: rgba(59,130,246,0.1); }
+.btn-edit { border-color: #e67e22; color: #e67e22; }
+.btn-edit:hover { background: rgba(230,126,34,0.1); }
+.btn-delete { border-color: var(--color-danger); color: var(--color-danger); }
+.btn-delete:hover { background: rgba(220,53,69,0.1); }
+.pagination-area { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-lg) var(--spacing-xl); background: var(--color-gray-50); border-top: 1px solid var(--color-gray-100); flex-wrap: wrap; gap: var(--spacing-md); }
+.pagination-info { font-size: 13px; color: var(--color-gray-500); }
+.pagination-controls { display: flex; gap: 4px; align-items: center; }
+.pagination-controls button { min-width: 34px; height: 34px; border-radius: var(--radius-sm); border: 1.5px solid var(--color-gray-300); background: white; color: var(--color-gray-700); font-size: 13px; font-family: var(--font-body); cursor: pointer; transition: all var(--transition-fast); padding: 0 8px; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+.pagination-controls button:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+.pagination-controls button.active { background: var(--color-primary); border-color: var(--color-primary); color: white; }
+.pagination-controls button:disabled { opacity: 0.35; cursor: not-allowed; }
+.no-results { text-align: center; padding: 60px 20px; color: var(--color-gray-500); }
+.no-results .no-icon { font-size: 48px; margin-bottom: var(--spacing-md); }
+.loading-row td { text-align: center; padding: 40px; color: var(--color-gray-500); font-size: 14px; }
+.success-banner { background: rgba(34,197,94,0.1); border: 1.5px solid rgba(34,197,94,0.4); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; color: #166534; display: none; font-weight: 600; margin-bottom: var(--spacing-lg); align-items: center; gap: 10px; }
+.success-banner.visible { display: flex; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 600; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; }
+.btn-primary { background: var(--color-primary); color: white; box-shadow: 0 3px 10px rgba(255,107,107,0.3); }
+.btn-primary:hover { background: var(--color-primary-dark); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--color-gray-600); border: 1.5px solid var(--color-gray-300); padding: 8px 14px; font-size: 13px; }
+.btn-ghost:hover { border-color: var(--color-gray-500); color: var(--color-dark); }
+.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9000; align-items: center; justify-content: center; padding: var(--spacing-lg); }
+.confirm-overlay.active { display: flex; }
+.confirm-card { background: white; border-radius: var(--radius-lg); padding: var(--spacing-2xl); max-width: 400px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.25); animation: slideUp 0.25s ease; }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.confirm-icon { font-size: 52px; margin-bottom: var(--spacing-md); }
+.confirm-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; margin-bottom: var(--spacing-sm); }
+.confirm-msg { color: var(--color-gray-500); font-size: 14px; line-height: 1.6; margin-bottom: var(--spacing-xl); }
+.confirm-actions { display: flex; gap: var(--spacing-md); justify-content: center; }
+.btn-danger { background: var(--color-danger); color: white; box-shadow: 0 3px 10px rgba(220,53,69,0.3); }
+.btn-danger:hover { background: #b02a37; }
+.btn-secondary { background: white; color: var(--color-gray-700); border: 1.5px solid var(--color-gray-300); }
+.btn-secondary:hover { border-color: var(--color-gray-500); }
+@media (max-width: 900px) { .kpi-strip { grid-template-columns: 1fr 1fr; } .filter-row { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .kpi-strip { grid-template-columns: 1fr; } .filter-row { grid-template-columns: 1fr; } .page-header { flex-direction: column; align-items: flex-start; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="usuarios-page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Gestión de <span>Usuarios</span></h1>
+        <p style="color:var(--color-gray-500);font-size:14px;margin-top:4px;">Administra, filtra y gestiona todos los usuarios del sistema</p>
+      </div>
+      <a href="{{ url_for('usuario_crear') }}" class="btn btn-primary"><span>＋</span> Nuevo Usuario</a>
+    </div>
+
+    <div class="success-banner" id="successBanner"><span>✅</span><span id="successMsg"></span></div>
+
+    <!-- KPIs -->
+    <!-- <div class="kpi-strip">
+      <div class="kpi-card"><div class="kpi-icon blue">👥</div><div><div class="kpi-value" id="kpiTotal">—</div><div class="kpi-label">Total usuarios</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon green">✅</div><div><div class="kpi-value" id="kpiActivos">—</div><div class="kpi-label">Activos</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon orange">🛡</div><div><div class="kpi-value" id="kpiAdmins">—</div><div class="kpi-label">Administradores</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon red">⛔</div><div><div class="kpi-value" id="kpiInactivos">—</div><div class="kpi-label">Inactivos</div></div></div>
+    </div> -->
+
+    <!-- Filters -->
+    <div class="filter-panel">
+      <div class="filter-panel-header" onclick="toggleFilters()">
+        <div class="filter-panel-title">🔍 Filtros de búsqueda <span id="activeFilterCount" style="background:var(--color-primary);color:white;border-radius:var(--radius-full);padding:1px 8px;font-size:10px;display:none;"></span></div>
+        <span id="filterToggleIcon" style="font-size:12px;transition:transform 0.2s;">▼</span>
+      </div>
+      <div class="filter-panel-body" id="filterBody">
+        <div class="filter-row">
+          <div class="filter-group"><label class="filter-label">🔍 Búsqueda general</label><input type="text" class="filter-input" id="f_search" placeholder="Nombre, correo, teléfono, ciudad..." oninput="applyFilters()"></div>
+          <div class="filter-group"><label class="filter-label">🛡 Rol</label><select class="filter-select" id="f_rol" onchange="applyFilters()"><option value="">Todos los roles</option><option value="admin">Administrador</option><option value="editor">Editor</option><option value="user">Usuario</option><option value="viewer">Visor</option></select></div>
+          <div class="filter-group"><label class="filter-label">⚡ Estado</label><select class="filter-select" id="f_estado" onchange="applyFilters()"><option value="">Todos</option><option value="activo">Activos</option><option value="inactivo">Inactivos</option></select></div>
+          <div class="filter-group"><label class="filter-label">📍 Ciudad</label><select class="filter-select" id="f_ciudad" onchange="applyFilters()"><option value="">Todas las ciudades</option></select></div>
+          <div style="display:flex;align-items:flex-end;"><button class="btn btn-ghost" onclick="clearFilters()">↺ Limpiar</button></div>
+        </div>
+      </div>
+      <div class="active-filters" id="activeFiltersRow"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      <div class="table-toolbar">
+        <div class="result-count" id="resultCount">Cargando...</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:12px;color:var(--color-gray-500);">Mostrar:</span>
+          <select class="per-page-select" id="perPageSelect" onchange="changePerPage()">
+            <option value="5" selected>5 por página</option><option value="10">10 por página</option><option value="25">25 por página</option><option value="50">50 por página</option>
+          </select>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:44px;">#</th>
+            <th onclick="sortBy('nombre')">Usuario <span class="sort-icon" data-col="nombre">⇅</span></th>
+            <th onclick="sortBy('correo')">Correo <span class="sort-icon" data-col="correo">⇅</span></th>
+            <th>Teléfono</th>
+            <th onclick="sortBy('rol')">Rol <span class="sort-icon" data-col="rol">⇅</span></th>
+            <th onclick="sortBy('estado')">Estado <span class="sort-icon" data-col="estado">⇅</span></th>
+            <th onclick="sortBy('fechaRegistro')">Registro <span class="sort-icon" data-col="fechaRegistro">⇅</span></th>
+            <th style="width:110px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody"><tr class="loading-row"><td colspan="8">Cargando usuarios...</td></tr></tbody>
+      </table>
+      <div class="no-results" id="noResults" style="display:none;"><div class="no-icon">🔍</div><strong>Sin resultados</strong><p style="margin-top:6px;font-size:14px;">No se encontraron usuarios con los filtros aplicados.</p><button class="btn btn-ghost" style="margin-top:12px;" onclick="clearFilters()">Limpiar filtros</button></div>
+      <div class="pagination-area" id="paginationArea" style="display:none;">
+        <span class="pagination-info" id="paginationInfo"></span>
+        <div class="pagination-controls" id="paginationControls"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="confirm-overlay" id="confirmDeleteOverlay">
+  <div class="confirm-card">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">¿Eliminar usuario?</div>
+    <p class="confirm-msg" id="confirmDeleteMsg">Esta acción no se puede deshacer.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let allUsers = [], filtered = [], currentPage = 1, pageSize = 5, sortCol = '', sortDir = 'asc';
+
+document.addEventListener('DOMContentLoaded', () => { loadUsers(); checkSuccessParam(); });
+
+function checkSuccessParam() {
+    const p = new URLSearchParams(window.location.search);
+    const success = p.get('success'), nombre = p.get('nombre') || '';
+    if (!success) return;
+    const msgs = { creado: `Usuario "${nombre}" creado exitosamente.`, editado: `Datos de "${nombre}" actualizados.`, eliminado: `Usuario "${nombre}" eliminado del sistema.` };
+    document.getElementById('successMsg').textContent = msgs[success] || 'Operación realizada.';
+    document.getElementById('successBanner').classList.add('visible');
+    setTimeout(() => document.getElementById('successBanner').classList.remove('visible'), 6000);
+    history.replaceState({}, '', window.location.pathname);
+}
+
+async function loadUsers() {
+    try {
+        const res = await fetch('/api/usuarios');
+        allUsers = await res.json();
+        /* updateKPIs();  */
+        populateCityFilter(); applyFilters();
+    } catch(e) {
+        document.getElementById('usersTableBody').innerHTML = '<tr class="loading-row"><td colspan="8">⚠️ Error al cargar usuarios.</td></tr>';
+    }
+}
+
+/* function updateKPIs() {
+    document.getElementById('kpiTotal').textContent = allUsers.length;
+    document.getElementById('kpiActivos').textContent = allUsers.filter(u => u.estado === 'activo').length;
+    document.getElementById('kpiAdmins').textContent = allUsers.filter(u => u.rol === 'admin').length;
+    document.getElementById('kpiInactivos').textContent = allUsers.filter(u => u.estado === 'inactivo').length;
+} */
+
+function populateCityFilter() {
+    const cities = [...new Set(allUsers.map(u => u.ciudad).filter(Boolean))].sort();
+    const sel = document.getElementById('f_ciudad');
+    cities.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+}
+
+function applyFilters() {
+    const search = (document.getElementById('f_search').value || '').toLowerCase().trim();
+    const rol    = document.getElementById('f_rol').value;
+    const estado = document.getElementById('f_estado').value;
+    const ciudad = document.getElementById('f_ciudad').value;
+    currentPage  = 1;
+
+    filtered = allUsers.filter(u => {
+        const nm = !search || ((u.nombre||'')+' '+(u.apellido||'')).toLowerCase().includes(search) || (u.correo||'').toLowerCase().includes(search) || (u.telefono||'').includes(search) || (u.ciudad||'').toLowerCase().includes(search);
+        return nm && (!rol || u.rol === rol) && (!estado || u.estado === estado) && (!ciudad || u.ciudad === ciudad);
+    });
+
+    if (sortCol) filtered.sort((a, b) => { let va=(a[sortCol]||'').toString().toLowerCase(), vb=(b[sortCol]||'').toString().toLowerCase(); return va<vb?(sortDir==='asc'?-1:1):va>vb?(sortDir==='asc'?1:-1):0; });
+    updateChips({search,rol,estado,ciudad});
+    renderTable();
+}
+
+function updateChips(f) {
+    const row = document.getElementById('activeFiltersRow');
+    const count = document.getElementById('activeFilterCount');
+    const rolLabels = { admin:'Administrador', editor:'Editor', user:'Usuario', viewer:'Visor' };
+    const chips = [];
+    if (f.search) chips.push({ label: `Búsqueda: "${f.search}"`, clear: () => { document.getElementById('f_search').value=''; applyFilters(); } });
+    if (f.rol)    chips.push({ label: `Rol: ${rolLabels[f.rol]||f.rol}`, clear: () => { document.getElementById('f_rol').value=''; applyFilters(); } });
+    if (f.estado) chips.push({ label: `Estado: ${f.estado}`, clear: () => { document.getElementById('f_estado').value=''; applyFilters(); } });
+    if (f.ciudad) chips.push({ label: `Ciudad: ${f.ciudad}`, clear: () => { document.getElementById('f_ciudad').value=''; applyFilters(); } });
+
+    if (chips.length > 0) {
+        row.classList.add('visible'); count.style.display = 'inline'; count.textContent = chips.length;
+        row.innerHTML = '<span style="font-size:11px;font-weight:600;color:var(--color-gray-500);">Filtros activos:</span>';
+        chips.forEach((chip, i) => {
+            const el = document.createElement('span'); el.className = 'filter-chip';
+            el.innerHTML = `${chip.label} <button>×</button>`;
+            el.querySelector('button').onclick = chip.clear;
+            row.appendChild(el);
+        });
+    } else { row.classList.remove('visible'); count.style.display = 'none'; }
+}
+
+function clearFilters() {
+    ['f_search','f_rol','f_estado','f_ciudad'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value='';
+    });
+    applyFilters();
+}
+
+function sortBy(col) {
+    sortDir = sortCol === col ? (sortDir === 'asc' ? 'desc' : 'asc') : 'asc';
+    sortCol = col;
+    document.querySelectorAll('.sort-icon').forEach(el => { el.textContent='⇅'; el.closest('th').classList.remove('sorted'); });
+    const icon = document.querySelector(`.sort-icon[data-col="${col}"]`);
+    if (icon) { icon.textContent = sortDir==='asc'?'↑':'↓'; icon.closest('th').classList.add('sorted'); }
+    applyFilters();
+}
+
+function rolBadge(r) {
+    const cls = { admin:'badge-admin', editor:'badge-editor', user:'badge-user', viewer:'badge-viewer' };
+    const lbl = { admin:'Admin', editor:'Editor', user:'Usuario', viewer:'Visor' };
+    return `<span class="badge ${cls[r]||'badge-user'}">${lbl[r]||r}</span>`;
+}
+
+function estadoBadge(e) {
+    return e==='activo' ? '<span class="badge badge-active">Activo</span>' : '<span class="badge badge-inactive">Inactivo</span>';
+}
+
+function initials(u) { return (((u.nombre||'?')[0])+((u.apellido||'?')[0])).toUpperCase(); }
+
+function renderTable() {
+    const tbody = document.getElementById('usersTableBody');
+    const noRes = document.getElementById('noResults');
+    const pagArea = document.getElementById('paginationArea');
+    const countEl = document.getElementById('resultCount');
+    const total = filtered.length;
+
+    countEl.innerHTML = `<strong>${total}</strong> usuario${total!==1?'s':''} encontrado${total!==1?'s':''}`;
+
+    if (total === 0) { tbody.innerHTML=''; noRes.style.display='block'; pagArea.style.display='none'; return; }
+    noRes.style.display = 'none'; pagArea.style.display = 'flex';
+
+    const totalPages = Math.ceil(total / pageSize);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    const start = (currentPage-1)*pageSize;
+    const page  = filtered.slice(start, start+pageSize);
+
+    tbody.innerHTML = page.map((u, i) => `
+        <tr>
+          <td style="color:var(--color-gray-400);font-size:12px;">${start+i+1}</td>
+          <td><div class="user-name-cell"><div class="user-avatar">${initials(u)}</div><div><div style="font-weight:600;color:var(--color-dark);">${u.nombre} ${u.apellido||''}</div><div style="font-size:11px;color:var(--color-gray-400);">${u.ciudad||'Sin ciudad'}</div></div></div></td>
+          <td style="font-size:13px;">${u.correo}</td>
+          <td style="font-size:13px;">${u.telefono||'—'}</td>
+          <td>${rolBadge(u.rol)}</td>
+          <td>${estadoBadge(u.estado)}</td>
+          <td style="font-size:12px;color:var(--color-gray-500);">${u.fechaRegistro||'—'}</td>
+          <td><div class="actions-cell">
+            <a href="/usuarios/${u.id}" class="btn-icon-sm btn-view" title="Ver detalles">👁</a>
+            <a href="/usuarios/${u.id}/editar" class="btn-icon-sm btn-edit" title="Editar">✏️</a>
+            <button class="btn-icon-sm btn-delete" title="Eliminar" onclick="confirmDelete(${u.id})">🗑</button>
+          </div></td>
+        </tr>`).join('');
+
+    const info = document.getElementById('paginationInfo');
+    const ctrl = document.getElementById('paginationControls');
+    info.textContent = `Mostrando ${start+1}–${Math.min(start+pageSize,total)} de ${total}`;
+    let btns = `<button onclick="goPage(1)" ${currentPage===1?'disabled':''}>⟪</button><button onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+    for (let p=1; p<=totalPages; p++) {
+        if (p===1 || p===totalPages || (p>=currentPage-2 && p<=currentPage+2)) btns += `<button class="${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+        else if (p===currentPage-3 || p===currentPage+3) btns += `<button disabled>…</button>`;
+    }
+    btns += `<button onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button><button onclick="goPage(${totalPages})" ${currentPage===totalPages?'disabled':''}>⟫</button>`;
+    ctrl.innerHTML = btns;
+}
+
+function goPage(p) { currentPage = p; renderTable(); }
+function changePerPage() { pageSize = parseInt(document.getElementById('perPageSelect').value); currentPage=1; renderTable(); }
+
+function toggleFilters() {
+    const body = document.getElementById('filterBody');
+    const icon = document.getElementById('filterToggleIcon');
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    icon.style.transform = open ? 'rotate(-90deg)' : 'rotate(0deg)';
+}
+
+function confirmDelete(id) {
+    const u = allUsers.find(x => x.id === id);
+    if (!u) return;
+    document.getElementById('confirmDeleteMsg').textContent = `¿Seguro que deseas eliminar a "${u.nombre} ${u.apellido||''}" (${u.correo})? Esta acción no se puede deshacer.`;
+    document.getElementById('confirmDeleteBtn').onclick = () => executeDelete(id, u);
+    document.getElementById('confirmDeleteOverlay').classList.add('active');
+}
+
+function closeConfirm() { document.getElementById('confirmDeleteOverlay').classList.remove('active'); }
+
+document.getElementById('confirmDeleteOverlay').addEventListener('click', function(e) { if (e.target===this) closeConfirm(); });
+
+async function executeDelete(id, u) {
+    closeConfirm();
+    try {
+        const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+            allUsers = allUsers.filter(x => x.id !== id);
+            /* updateKPIs();  */
+            applyFilters();
+            document.getElementById('successMsg').textContent = `🗑️ Usuario "${u.nombre} ${u.apellido||''}" eliminado correctamente.`;
+            const banner = document.getElementById('successBanner');
+            banner.classList.add('visible');
+            setTimeout(() => banner.classList.remove('visible'), 5000);
+        } else { alert(data.error || 'No se pudo eliminar'); }
+    } catch(e) { alert('Error de conexión'); }
+}
+</script>
+{% endblock %}

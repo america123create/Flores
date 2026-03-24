@@ -1,0 +1,1030 @@
+{% extends "base.html" %}
+
+{% block title %}Carrusel de Flores {% endblock %}
+
+{% block extra_css %}
+<style>
+/* ==============================
+   PAGE
+   ============================== */
+.carrusel-page { padding: var(--spacing-2xl) 0; }
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-2xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.page-header-text h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-dark);
+}
+
+.page-header-text h1 span { color: var(--color-primary); }
+.page-header-text p { color: var(--color-gray-500); font-size: 14px; margin-top: 4px; }
+
+/* ==============================
+   UPLOAD ZONE
+   ============================== */
+.upload-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
+    border: 1px solid var(--color-gray-300);
+}
+
+.upload-section h2 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.drop-zone {
+    border: 2.5px dashed var(--color-gray-300);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-2xl) var(--spacing-xl);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    background: var(--color-gray-100);
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--color-primary);
+    background: rgba(255,107,107,0.04);
+}
+
+.drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.drop-icon { font-size: 40px; margin-bottom: var(--spacing-sm); }
+
+.drop-zone .drop-text {
+    font-size: 15px;
+    color: var(--color-gray-700);
+    font-weight: 500;
+}
+
+.drop-zone .drop-hint {
+    font-size: 12px;
+    color: var(--color-gray-500);
+    margin-top: 6px;
+}
+
+.preview-strip {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    margin-top: var(--spacing-lg);
+}
+
+.preview-thumb {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 2px solid var(--color-gray-300);
+    flex-shrink: 0;
+}
+
+.preview-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-thumb .remove-preview {
+    position: absolute;
+    top: 2px; right: 2px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* Upload form fields */
+.upload-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.form-group { margin-bottom: 0; }
+
+.form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-dark);
+    margin-bottom: 6px;
+}
+
+.form-label .required { color: var(--color-primary); margin-left: 2px; }
+
+.form-input, .form-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--color-dark);
+    transition: border-color var(--transition-fast);
+    background: white;
+}
+
+.form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255,107,107,0.1);
+}
+
+.form-input.error { border-color: var(--color-danger); }
+.form-textarea { resize: vertical; min-height: 70px; }
+
+.char-count { font-size: 11px; color: var(--color-gray-500); text-align: right; margin-top: 3px; }
+.char-count.over { color: var(--color-danger); }
+
+.field-error {
+    font-size: 11px;
+    color: var(--color-danger);
+    margin-top: 4px;
+    display: none;
+    font-weight: 500;
+}
+
+/* Progress bar */
+.upload-progress {
+    display: none;
+    margin-top: var(--spacing-md);
+}
+
+.progress-bar-wrap {
+    height: 6px;
+    background: var(--color-gray-300);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 12px;
+    color: var(--color-gray-500);
+    margin-top: 4px;
+    text-align: center;
+}
+
+/* Api error banner */
+.api-error {
+    background: rgba(220,53,69,0.1);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #b02a37;
+    margin-top: var(--spacing-md);
+    display: none;
+    font-weight: 500;
+}
+
+/* ==============================
+   IMAGE GRID
+   ============================== */
+.images-section h2 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.images-count {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-gray-500);
+    margin-left: 4px;
+}
+
+.images-empty {
+    text-align: center;
+    padding: var(--spacing-3xl);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-gray-300);
+    color: var(--color-gray-500);
+}
+
+.images-empty .empty-icon { font-size: 52px; margin-bottom: var(--spacing-md); }
+
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.image-card {
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-gray-300);
+    overflow: hidden;
+    transition: all var(--transition-fast);
+    animation: fadeInUp 0.4s ease both;
+}
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.image-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+}
+
+.image-card-thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--color-gray-100);
+}
+
+.image-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.image-card:hover .image-card-thumb img { transform: scale(1.05); }
+
+.image-card-order {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(4px);
+}
+
+.image-card-body {
+    padding: var(--spacing-md);
+}
+
+.image-card-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-dark);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.image-card-desc {
+    font-size: 12px;
+    color: var(--color-gray-500);
+    line-height: 1.5;
+    max-height: 36px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.image-card-actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 var(--spacing-md) var(--spacing-md);
+}
+
+.btn-sm {
+    flex: 1;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none;
+    background: white;
+}
+
+.btn-sm-edit { border-color: var(--color-warning); color: #e67e22; }
+.btn-sm-edit:hover { background: rgba(255,179,71,0.1); }
+
+.btn-sm-delete { border-color: var(--color-danger); color: var(--color-danger); }
+.btn-sm-delete:hover { background: rgba(220,53,69,0.1); }
+
+/* ==============================
+   MODALS
+   ============================== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-sm { max-width: 400px; }
+
+.modal-header {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--color-gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--color-gray-500);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.modal-close:hover { background: var(--color-gray-100); }
+
+.modal-body { padding: var(--spacing-xl); }
+.modal-body .form-group { margin-bottom: var(--spacing-md); }
+
+.modal-footer {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-top: 1px solid var(--color-gray-100);
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+/* Preview in edit modal */
+.edit-preview {
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--color-gray-300);
+}
+
+/* Confirm */
+.confirm-icon  { font-size: 52px; text-align: center; margin-bottom: var(--spacing-md); }
+.confirm-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; text-align: center; margin-bottom: var(--spacing-sm); }
+.confirm-msg   { text-align: center; color: var(--color-gray-500); font-size: 14px; line-height: 1.6; }
+
+/* Buttons */
+.btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: var(--radius-sm); border: none;
+    cursor: pointer; font-family: var(--font-body); font-size: 14px;
+    font-weight: 600; transition: all var(--transition-fast); white-space: nowrap;
+}
+
+.btn-primary  { background: var(--color-primary); color: white; box-shadow: 0 3px 10px rgba(255,107,107,0.3); }
+.btn-primary:hover  { background: var(--color-primary-dark); transform: translateY(-1px); }
+.btn-secondary{ background: white; color: var(--color-gray-700); border: 1.5px solid var(--color-gray-300); }
+.btn-secondary:hover{ border-color: var(--color-gray-500); }
+.btn-danger   { background: var(--color-danger); color: white; box-shadow: 0 3px 10px rgba(220,53,69,0.3); }
+.btn-danger:hover   { background: #b02a37; transform: translateY(-1px); }
+
+/* Success modal */
+.success-body { text-align: center; padding: var(--spacing-2xl); }
+.success-icon { font-size: 52px; margin-bottom: var(--spacing-md); }
+
+@media (max-width: 640px) {
+    .upload-fields { grid-template-columns: 1fr; }
+    .images-grid   { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+<div class="carrusel-page">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1>Carrusel de <span>Flores</span></h1>
+            <p>Sube, edita y elimina las imágenes que aparecen en el carrusel del dashboard</p>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Volver al Dashboard</a>
+    </div>
+
+    <!-- Upload section -->
+    <div class="upload-section">
+        <h2>📤 Subir nueva imagen</h2>
+
+        <div class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" multiple>
+            <div class="drop-icon">🖼️</div>
+            <div class="drop-text">Arrastra tu imagen aquí o haz clic para seleccionar</div>
+            <div class="drop-hint">PNG, JPG, JPEG, GIF, WEBP — máximo 5 MB por imagen</div>
+        </div>
+
+        <div class="preview-strip" id="previewStrip"></div>
+
+        <div class="upload-fields">
+            <div class="form-group">
+                <label class="form-label">Título <span class="required">*</span></label>
+                <input type="text" class="form-input" id="uploadTitulo"
+                       placeholder="Ej: Portada principal" maxlength="100">
+                <div class="char-count" id="tituloCount">0 / 100</div>
+                <div class="field-error" id="errTitulo"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-textarea" id="uploadDesc"
+                          placeholder="Descripción breve (opcional)..." rows="2" maxlength="250"></textarea>
+                <div class="char-count" id="descCount">0 / 250</div>
+            </div>
+        </div>
+
+        <div class="upload-progress" id="uploadProgress">
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Subiendo...</div>
+        </div>
+
+        <div class="api-error" id="uploadError"></div>
+
+        <div style="margin-top:var(--spacing-lg);display:flex;gap:var(--spacing-md);flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btnSubir" onclick="submitUpload()" disabled>
+                📤 Subir imagen
+            </button>
+            <button class="btn btn-secondary" onclick="resetUploadForm()">✕ Limpiar</button>
+        </div>
+    </div>
+
+    <!-- Images grid -->
+    <div class="images-section">
+        <h2>
+            🖼️ Imágenes del carrusel
+            <span class="images-count" id="imagesCount"></span>
+        </h2>
+
+        <div id="imagesContainer">
+            {% if imagenes %}
+                <div class="images-grid" id="imagesGrid">
+                    {% for img in imagenes %}
+                    <div class="image-card" id="card-{{ img.id }}" data-id="{{ img.id }}">
+                        <div class="image-card-thumb">
+                            <img src="{{ img.url }}" alt="{{ img.titulo }}" loading="lazy">
+                            <span class="image-card-order">#{{ img.orden }}</span>
+                        </div>
+                        <div class="image-card-body">
+                            <div class="image-card-title">{{ img.titulo }}</div>
+                            <div class="image-card-desc">{{ img.descripcion or 'Sin descripción' }}</div>
+                        </div>
+                        <div class="image-card-actions">
+                            <button class="btn-sm btn-sm-edit"
+                                    onclick="openEdit('{{ img.id }}','{{ img.titulo }}',`{{ img.descripcion }}`, '{{ img.url }}')">
+                                ✏️ Editar
+                            </button>
+                            <button class="btn-sm btn-sm-delete"
+                                    onclick="confirmDel('{{ img.id }}','{{ img.titulo }}')">
+                                🗑 Eliminar
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="images-empty" id="emptyState">
+                    <div class="empty-icon">📭</div>
+                    <p>Aún no hay imágenes. ¡Sube la primera!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!-- MODAL: Editar imagen -->
+<div class="modal-overlay" id="modalEdit">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 class="modal-title">✏️ Editar imagen</h2>
+            <button class="modal-close" onclick="closeModal('modalEdit')">×</button>
+        </div>
+        <div class="modal-body">
+            <img id="editPreviewImg" src="" alt="" class="edit-preview">
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label class="form-label">Título <span class="required">*</span></label>
+                <input type="text" class="form-input" id="editTitulo" maxlength="100">
+                <div class="char-count" id="editTituloCount">0 / 100</div>
+                <div class="field-error" id="errEditTitulo"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-textarea" id="editDesc" rows="3" maxlength="250"></textarea>
+                <div class="char-count" id="editDescCount">0 / 250</div>
+            </div>
+            <div class="api-error" id="editError"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modalEdit')">Cancelar</button>
+            <button class="btn btn-primary" id="btnEditSave" onclick="submitEdit()">✓ Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Confirmar eliminar -->
+<div class="modal-overlay" id="modalConfirm">
+    <div class="modal-card modal-sm">
+        <div class="modal-header">
+            <h2 class="modal-title">Confirmar eliminación</h2>
+            <button class="modal-close" onclick="closeModal('modalConfirm')">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-icon">🗑️</div>
+            <div class="confirm-title">¿Eliminar imagen?</div>
+            <p class="confirm-msg" id="confirmMsg">Esta acción eliminará la imagen permanentemente del servidor.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modalConfirm')">Cancelar</button>
+            <button class="btn btn-danger" id="confirmDelBtn">Sí, eliminar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Éxito -->
+<div class="modal-overlay" id="modalSuccess">
+    <div class="modal-card modal-sm">
+        <div class="modal-body success-body">
+            <div class="success-icon" id="successIcon">✅</div>
+            <div class="confirm-title" id="successTitle">¡Listo!</div>
+            <p class="confirm-msg" id="successMsg"></p>
+        </div>
+        <div class="modal-footer" style="justify-content:center;">
+            <button class="btn btn-primary" onclick="closeModal('modalSuccess')">Aceptar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ==============================
+// STATE
+// ==============================
+let selectedFiles = [];   // { file, objectUrl }
+let totalImages   = document.querySelectorAll('.image-card').length;
+
+// ==============================
+// MODAL HELPERS
+// ==============================
+function openModal(id)  { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+document.querySelectorAll('.modal-overlay').forEach(o =>
+    o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); })
+);
+
+function showSuccess(title, msg, icon) {
+    document.getElementById('successTitle').textContent = title;
+    document.getElementById('successMsg').textContent   = msg;
+    document.getElementById('successIcon').textContent  = icon || '✅';
+    openModal('modalSuccess');
+}
+
+// ==============================
+// DROP ZONE & FILE PICKER
+// ==============================
+const dropZone  = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const btnSubir  = document.getElementById('btnSubir');
+
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFiles(Array.from(e.dataTransfer.files));
+});
+
+fileInput.addEventListener('change', () => handleFiles(Array.from(fileInput.files)));
+
+function handleFiles(files) {
+    const allowed = ['image/png','image/jpeg','image/jpg','image/gif','image/webp'];
+    files.forEach(f => {
+        if (!allowed.includes(f.type)) { alert(`"${f.name}" no es un formato permitido.`); return; }
+        if (f.size > 5 * 1024 * 1024)  { alert(`"${f.name}" supera el límite de 5 MB.`); return; }
+        if (selectedFiles.length >= 1)  { selectedFiles[0].objectUrl && URL.revokeObjectURL(selectedFiles[0].objectUrl); selectedFiles = []; }
+        selectedFiles.push({ file: f, objectUrl: URL.createObjectURL(f) });
+    });
+    renderPreview();
+    updateSubmitBtn();
+}
+
+function renderPreview() {
+    const strip = document.getElementById('previewStrip');
+    strip.innerHTML = '';
+    selectedFiles.forEach((item, idx) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'preview-thumb';
+        wrap.innerHTML = `
+            <img src="${item.objectUrl}" alt="preview">
+            <button class="remove-preview" onclick="removePreview(${idx})" title="Quitar">×</button>
+        `;
+        strip.appendChild(wrap);
+    });
+}
+
+function removePreview(idx) {
+    URL.revokeObjectURL(selectedFiles[idx].objectUrl);
+    selectedFiles.splice(idx, 1);
+    renderPreview();
+    updateSubmitBtn();
+    fileInput.value = '';
+}
+
+function updateSubmitBtn() {
+    const titulo = document.getElementById('uploadTitulo').value.trim();
+    btnSubir.disabled = selectedFiles.length === 0 || !titulo;
+}
+
+// Char counters
+document.getElementById('uploadTitulo').addEventListener('input', function() {
+    const n = this.value.length;
+    const el = document.getElementById('tituloCount');
+    el.textContent = `${n} / 100`;
+    el.className = 'char-count' + (n > 90 ? ' over' : '');
+    updateSubmitBtn();
+});
+
+document.getElementById('uploadDesc').addEventListener('input', function() {
+    const n = this.value.length;
+    const el = document.getElementById('descCount');
+    el.textContent = `${n} / 250`;
+    el.className = 'char-count' + (n > 230 ? ' over' : '');
+});
+
+document.getElementById('editTitulo').addEventListener('input', function() {
+    const n = this.value.length;
+    const el = document.getElementById('editTituloCount');
+    el.textContent = `${n} / 100`;
+    el.className = 'char-count' + (n > 90 ? ' over' : '');
+});
+
+document.getElementById('editDesc').addEventListener('input', function() {
+    const n = this.value.length;
+    const el = document.getElementById('editDescCount');
+    el.textContent = `${n} / 250`;
+    el.className = 'char-count' + (n > 230 ? ' over' : '');
+});
+
+// ==============================
+// UPLOAD
+// ==============================
+async function submitUpload() {
+    const titulo = document.getElementById('uploadTitulo').value.trim();
+    const desc   = document.getElementById('uploadDesc').value.trim();
+    const errEl  = document.getElementById('uploadError');
+    const errTit = document.getElementById('errTitulo');
+
+    errEl.style.display = 'none';
+    errTit.style.display = 'none';
+    document.getElementById('uploadTitulo').classList.remove('error');
+
+    if (selectedFiles.length === 0) {
+        errEl.textContent = 'Selecciona al menos una imagen';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    if (!titulo) {
+        errTit.textContent = 'El título es obligatorio';
+        errTit.style.display = 'block';
+        document.getElementById('uploadTitulo').classList.add('error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('imagen', selectedFiles[0].file);
+    formData.append('titulo', titulo);
+    formData.append('descripcion', desc);
+
+    btnSubir.disabled = true;
+    btnSubir.textContent = 'Subiendo...';
+
+    const prog     = document.getElementById('uploadProgress');
+    const fill     = document.getElementById('progressFill');
+    const progText = document.getElementById('progressText');
+    prog.style.display = 'block';
+
+    // Simulate progress (XHR gives real progress; fetch doesn't)
+    let pct = 0;
+    const ticker = setInterval(() => {
+        pct = Math.min(pct + Math.random() * 15, 85);
+        fill.style.width = pct + '%';
+        progText.textContent = `Subiendo... ${Math.round(pct)}%`;
+    }, 150);
+
+    try {
+        const res  = await fetch('/api/carrusel', { method: 'POST', body: formData });
+        const data = await res.json();
+        clearInterval(ticker);
+        fill.style.width = '100%';
+        progText.textContent = 'Completado';
+
+        setTimeout(() => { prog.style.display = 'none'; fill.style.width = '0%'; }, 600);
+
+        if (res.ok) {
+            appendCard(data);
+            resetUploadForm();
+            updateImagesCount(1);
+            showSuccess('¡Imagen subida!', `"${data.titulo}" fue añadida al carrusel.`, '🖼️');
+        } else {
+            errEl.textContent = data.error || 'Error al subir la imagen';
+            errEl.style.display = 'block';
+        }
+    } catch (e) {
+        clearInterval(ticker);
+        prog.style.display = 'none';
+        errEl.textContent = 'Error de conexión. Intenta de nuevo.';
+        errEl.style.display = 'block';
+    }
+
+    btnSubir.disabled = false;
+    btnSubir.textContent = '📤 Subir imagen';
+    updateSubmitBtn();
+}
+
+function resetUploadForm() {
+    selectedFiles.forEach(f => URL.revokeObjectURL(f.objectUrl));
+    selectedFiles = [];
+    document.getElementById('previewStrip').innerHTML = '';
+    document.getElementById('uploadTitulo').value = '';
+    document.getElementById('uploadDesc').value   = '';
+    document.getElementById('tituloCount').textContent = '0 / 100';
+    document.getElementById('descCount').textContent   = '0 / 250';
+    document.getElementById('errTitulo').style.display = 'none';
+    document.getElementById('uploadError').style.display = 'none';
+    document.getElementById('uploadTitulo').classList.remove('error');
+    document.getElementById('fileInput').value = '';
+    btnSubir.disabled = true;
+}
+
+// ==============================
+// RENDER NEW CARD
+// ==============================
+function appendCard(img) {
+    const container = document.getElementById('imagesContainer');
+    const empty     = document.getElementById('emptyState');
+    if (empty) empty.remove();
+
+    let grid = document.getElementById('imagesGrid');
+    if (!grid) {
+        grid = document.createElement('div');
+        grid.className = 'images-grid';
+        grid.id        = 'imagesGrid';
+        container.appendChild(grid);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'image-card';
+    card.id        = `card-${img.id}`;
+    card.dataset.id = img.id;
+    card.innerHTML = `
+        <div class="image-card-thumb">
+            <img src="${img.url}" alt="${img.titulo}" loading="lazy">
+            <span class="image-card-order">#${img.orden}</span>
+        </div>
+        <div class="image-card-body">
+            <div class="image-card-title">${escHtml(img.titulo)}</div>
+            <div class="image-card-desc">${escHtml(img.descripcion || 'Sin descripción')}</div>
+        </div>
+        <div class="image-card-actions">
+            <button class="btn-sm btn-sm-edit"
+                    onclick="openEdit('${img.id}','${escAttr(img.titulo)}',\`${escAttr(img.descripcion)}\`,'${img.url}')">
+                ✏️ Editar
+            </button>
+            <button class="btn-sm btn-sm-delete"
+                    onclick="confirmDel('${img.id}','${escAttr(img.titulo)}')">
+                🗑 Eliminar
+            </button>
+        </div>
+    `;
+    grid.appendChild(card);
+    totalImages++;
+}
+
+function updateImagesCount(delta) {
+    totalImages = Math.max(0, totalImages + delta);
+    const el = document.getElementById('imagesCount');
+    if (el) el.textContent = `(${totalImages})`;
+}
+
+// ==============================
+// EDIT
+// ==============================
+function openEdit(id, titulo, desc, url) {
+    document.getElementById('editId').value    = id;
+    document.getElementById('editTitulo').value = titulo;
+    document.getElementById('editDesc').value   = desc;
+    document.getElementById('editPreviewImg').src = url;
+
+    const tn = titulo.length;
+    const dn = desc.length;
+    document.getElementById('editTituloCount').textContent = `${tn} / 100`;
+    document.getElementById('editDescCount').textContent   = `${dn} / 250`;
+    document.getElementById('errEditTitulo').style.display = 'none';
+    document.getElementById('editError').style.display     = 'none';
+    document.getElementById('editTitulo').classList.remove('error');
+    openModal('modalEdit');
+}
+
+async function submitEdit() {
+    const id     = document.getElementById('editId').value;
+    const titulo = document.getElementById('editTitulo').value.trim();
+    const desc   = document.getElementById('editDesc').value.trim();
+    const errEl  = document.getElementById('editError');
+    const errTit = document.getElementById('errEditTitulo');
+
+    errEl.style.display  = 'none';
+    errTit.style.display = 'none';
+    document.getElementById('editTitulo').classList.remove('error');
+
+    if (!titulo) {
+        errTit.textContent = 'El título es obligatorio';
+        errTit.style.display = 'block';
+        document.getElementById('editTitulo').classList.add('error');
+        return;
+    }
+
+    const btn = document.getElementById('btnEditSave');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    const res  = await fetch(`/api/carrusel/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo, descripcion: desc })
+    });
+    const data = await res.json();
+
+    btn.disabled = false; btn.textContent = '✓ Guardar';
+
+    if (res.ok) {
+        // Update card in DOM
+        const card = document.getElementById(`card-${id}`);
+        if (card) {
+            card.querySelector('.image-card-title').textContent = data.titulo;
+            card.querySelector('.image-card-desc').textContent  = data.descripcion || 'Sin descripción';
+            // Update onclick attrs
+            const editBtn = card.querySelector('.btn-sm-edit');
+            if (editBtn) editBtn.setAttribute('onclick',
+                `openEdit('${data.id}','${escAttr(data.titulo)}',\`${escAttr(data.descripcion)}\`,'${data.url}')`);
+            const delBtn = card.querySelector('.btn-sm-delete');
+            if (delBtn) delBtn.setAttribute('onclick',
+                `confirmDel('${data.id}','${escAttr(data.titulo)}')`);
+        }
+        closeModal('modalEdit');
+        showSuccess('¡Cambios guardados!', `La imagen "${data.titulo}" fue actualizada.`, '✏️');
+    } else {
+        errEl.textContent = data.error || 'Error al guardar';
+        errEl.style.display = 'block';
+    }
+}
+
+// ==============================
+// DELETE
+// ==============================
+function confirmDel(id, titulo) {
+    document.getElementById('confirmMsg').textContent =
+        `¿Seguro que deseas eliminar "${titulo}"? El archivo será borrado del servidor.`;
+    document.getElementById('confirmDelBtn').onclick = () => executeDelete(id, titulo);
+    openModal('modalConfirm');
+}
+
+async function executeDelete(id, titulo) {
+    closeModal('modalConfirm');
+    const res  = await fetch(`/api/carrusel/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+
+    if (res.ok) {
+        const card = document.getElementById(`card-${id}`);
+        if (card) card.remove();
+        updateImagesCount(-1);
+
+        // If grid is empty, show empty state
+        const grid = document.getElementById('imagesGrid');
+        if (grid && grid.children.length === 0) {
+            grid.remove();
+            const container = document.getElementById('imagesContainer');
+            container.innerHTML = `
+                <div class="images-empty" id="emptyState">
+                    <div class="empty-icon">📭</div>
+                    <p>Aún no hay imágenes. ¡Sube la primera!</p>
+                </div>`;
+        }
+        showSuccess('Imagen eliminada', `"${titulo}" fue eliminada del carrusel y del servidor.`, '🗑️');
+    } else {
+        showSuccess('Error', data.error || 'No se pudo eliminar la imagen.', '⚠️');
+    }
+}
+
+// ==============================
+// UTILS
+// ==============================
+function escHtml(str) {
+    return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(str) {
+    return (str||'').replace(/'/g,"\\'").replace(/`/g,'\\`');
+}
+
+// ==============================
+// INIT count
+// ==============================
+document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('imagesCount');
+    if (el) el.textContent = `(${totalImages})`;
+});
+</script>
+{% endblock %}
