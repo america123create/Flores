@@ -1628,3 +1628,127 @@ html {
     background: var(--color-primary);
     color: white;
 }
+
+/* ==========================================
+   🔥 UPGRADE TIPOGRAFÍA
+========================================== */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+h1, h2, h3, .card-title, .section-title {
+    font-family: 'Playfair Display', serif;
+}
+
+/* ==========================================
+   🔥 BOTONES PRO
+========================================== */
+.btn {
+    border-radius: 30px;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ff4da6, #ff85c1);
+    box-shadow: 0 8px 25px rgba(255, 77, 166, 0.35);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 30px rgba(255, 77, 166, 0.5);
+}
+/* ==========================================
+   🔥 CARDS ULTRA MODERNAS
+========================================== */
+.dashboard-card,
+.feature-card,
+.form-card,
+.action-card {
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(255,255,255,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+/* efecto glow */
+.dashboard-card::after,
+.feature-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(255,77,166,0.2), transparent 60%);
+    opacity: 0;
+    transition: 0.4s;
+}
+
+.dashboard-card:hover::after,
+.feature-card:hover::after {
+    opacity: 1;
+}
+/* ==========================================
+   🔥 INPUTS PREMIUM
+========================================== */
+.form-input {
+    border-radius: 20px;
+    border: 1px solid #ffd6eb;
+    background: rgba(255,255,255,0.8);
+}
+
+.form-input:focus {
+    border-color: #ff4da6;
+    box-shadow: 0 0 10px rgba(255, 77, 166, 0.3);
+}
+/* ==========================================
+   🔥 TABLA MODERNA CRUD
+========================================== */
+table {
+    border-radius: 15px;
+    overflow: hidden;
+    background: white;
+    box-shadow: var(--shadow-md);
+}
+
+thead {
+    background: linear-gradient(135deg, #ff4da6, #ff99cc);
+    color: white;
+}
+
+tbody tr {
+    transition: 0.2s;
+}
+
+tbody tr:hover {
+    background: #ffe6f2;
+    transform: scale(1.01);
+}
+/* ==========================================
+   🔥 BUSCADOR
+========================================== */
+input[type="text"] {
+    border-radius: 25px;
+    padding: 12px 18px;
+    border: 1px solid #ffcce6;
+}
+
+input[type="text"]:focus {
+    border-color: #ff4da6;
+    box-shadow: 0 0 8px rgba(255,77,166,0.3);
+}
+/* ==========================================
+   🔥 MICRO ANIMACIONES
+========================================== */
+* {
+    transition: all 0.2s ease;
+}
+/* ==========================================
+   🔥 SCROLL CUSTOM
+========================================== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ff4da6;
+    border-radius: 10px;
+}
