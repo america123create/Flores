@@ -13,8 +13,10 @@ import cloudinary.api
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'clave-secreta-temporal')
-RECAPTCHA_SITE_KEY = os.environ.get('RECAPTCHA_SITE_KEY')
-RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')
+
+RECAPTCHA_SITE_KEY   = os.environ.get('RECAPTCHA_SITE_KEY',   '6Le-GpcsAAAAAEY99vcvRoQJi_5BiKnUk-gMWPM7')
+RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '6Le-GpcsAAAAADy-cfE-czo2S386XmbDAnN14bed')
+
 
 # ==========================================
 # CLOUDINARY — PEGA TUS CREDENCIALES AQUÍ
