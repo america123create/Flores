@@ -39,7 +39,6 @@
     <div class="form-page">
         <div class="form-header">
             <h1 class="form-title">Crear Cuenta</h1>
-            <p class="form-subtitle">Únete a nuestra plataforma y comienza tu experiencia</p>
         </div>
         
         <form method="POST" action="{{ url_for('registro') }}" class="form-card" id="registroForm" novalidate>
@@ -54,7 +53,7 @@
                     id="nombre" 
                     name="nombre" 
                     class="form-input"
-                    placeholder="tuusuario"
+                    placeholder="usernamee"
                     required
                     autocomplete="username">
                 <div class="validation-feedback" id="nombreFeedback"></div>
@@ -64,7 +63,7 @@
             <!-- Campo Correo -->
 <div class="form-group">
     <label for="correo" class="form-label">
-        Correo electrónico
+        Email
         <span class="required">*</span>
     </label>
     <input 
