@@ -1,463 +1,275 @@
 {% extends "base.html" %}
 
 {% block title %}Detalle de Usuario - {{ usuario.nombre }} {{ usuario.apellido or '' }} - Masonite{% endblock %}
-
 {% block extra_css %}
 <style>
+
+/* 🌸 FONDO CLARO PREMIUM */
+body {
+    background: linear-gradient(135deg, #fff0f5, #ffe6f0);
+    color: #2a0f1f;
+}
+
+/* CONTENEDOR */
 .detail-page {
     padding: var(--spacing-2xl) 0;
     min-height: 60vh;
 }
 
+/* 🔙 BACK */
 .back-link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--color-gray-500);
+    color: #b36680;
     text-decoration: none;
     font-size: 14px;
-    font-weight: 500;
-    transition: color var(--transition-fast);
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
 }
 .back-link:hover { color: var(--color-primary); }
 
+/* GRID */
 .detail-layout {
     display: grid;
-    grid-template-columns: 340px 1fr;
+    grid-template-columns: 320px 1fr;
     gap: var(--spacing-xl);
-    align-items: start;
 }
 
-/* SIDEBAR */
+/* =========================================
+   🌸 SIDEBAR MODERNO CLARO
+========================================= */
 .detail-sidebar {
-    background: white;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(255,77,166,0.2);
     overflow: hidden;
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid rgba(255,255,255,0.4);
     position: sticky;
     top: 20px;
 }
 
+/* HEADER */
 .sidebar-header {
-    background: linear-gradient(135deg, var(--color-dark) 0%, #2c2c3e 100%);
-    padding: var(--spacing-2xl) var(--spacing-xl);
+    padding: var(--spacing-2xl);
     text-align: center;
+    background: linear-gradient(135deg, #ff4da6, #e60073);
 }
 
+/* AVATAR */
 .user-avatar-large {
-    width: 88px;
-    height: 88px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-    color: white;
+    background: white;
+    color: #ff4da6;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 32px;
-    font-family: var(--font-display);
+    font-size: 30px;
     margin: 0 auto var(--spacing-md);
-    box-shadow: 0 6px 24px rgba(255,107,107,0.4);
-    border: 3px solid rgba(255,255,255,0.15);
 }
 
+/* NAME */
 .user-full-name {
-    font-family: var(--font-display);
     font-size: 1.2rem;
     font-weight: 700;
     color: white;
-    margin-bottom: 4px;
 }
-
 .user-email {
     font-size: 13px;
-    color: rgba(255,255,255,0.55);
-    word-break: break-all;
+    color: rgba(255,255,255,0.8);
 }
 
+/* BADGES */
 .sidebar-badges {
-    padding: var(--spacing-lg) var(--spacing-xl);
+    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
-    border-bottom: 1px solid var(--color-gray-100);
-}
-
-.badge-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.badge-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-gray-500);
-}
-
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 12px;
-    border-radius: var(--radius-full);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.badge-admin   { background: rgba(255,107,107,0.15); color: #c0392b; }
-.badge-editor  { background: rgba(78,205,196,0.15);  color: #1a7a74; }
-.badge-user    { background: rgba(107,207,127,0.15); color: #1e7e34; }
-.badge-viewer  { background: rgba(255,179,71,0.15);  color: #a0670a; }
-.badge-active  { background: rgba(107,207,127,0.15); color: #1e7e34; }
-.badge-inactive{ background: rgba(180,180,180,0.15); color: #666; }
-
-.sidebar-meta {
-    padding: var(--spacing-lg) var(--spacing-xl);
-}
-
-.meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    margin-bottom: var(--spacing-md);
-}
-.meta-item:last-child { margin-bottom: 0; }
-
-.meta-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-gray-400);
-}
-
-.meta-value {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-dark);
-}
-
-.sidebar-actions {
-    padding: var(--spacing-lg) var(--spacing-xl);
-    border-top: 1px solid var(--color-gray-100);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
-}
-
-/* MAIN CONTENT */
-.detail-main { display: flex; flex-direction: column; gap: var(--spacing-lg); }
-
-.detail-card {
-    background: white;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    overflow: hidden;
-    border: 1px solid var(--color-gray-200);
-}
-
-.detail-card-header {
-    padding: var(--spacing-lg) var(--spacing-xl);
-    border-bottom: 1px solid var(--color-gray-100);
-    display: flex;
-    align-items: center;
     gap: 10px;
 }
 
-.detail-card-title {
-    font-family: var(--font-display);
-    font-size: 13px;
+.badge {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-dark);
+    text-align: center;
 }
 
+.badge-active { background: rgba(34,197,94,0.15); color: #22c55e; }
+.badge-inactive { background: rgba(255,77,166,0.15); color: #ff4da6; }
+
+/* META */
+.sidebar-meta {
+    padding: var(--spacing-lg);
+}
+
+.meta-item {
+    margin-bottom: var(--spacing-md);
+}
+.meta-label {
+    font-size: 10px;
+    color: #b36680;
+}
+.meta-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2a0f1f;
+}
+
+/* BUTTONS */
+.sidebar-actions {
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* =========================================
+   💎 MAIN CONTENT
+========================================= */
+.detail-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* CARD */
+.detail-card {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(255,77,166,0.15);
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+/* HEADER */
+.detail-card-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* TITLE */
+.detail-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: uppercase;
+}
+
+/* BODY */
 .detail-card-body {
     padding: var(--spacing-xl);
 }
 
+/* GRID */
 .detail-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-lg);
 }
 
+/* ITEM */
 .detail-item label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-gray-400);
-    display: block;
-    margin-bottom: 4px;
+    font-size: 11px;
+    color: #b36680;
 }
-
 .detail-value {
-    font-size: 14px;
-    color: var(--color-dark);
-    font-weight: 500;
-    word-break: break-word;
-}
-
-.detail-value.empty { color: var(--color-gray-400); font-style: italic; }
-
-.notes-box {
-    background: var(--color-gray-50);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-sm);
-    padding: var(--spacing-md) var(--spacing-lg);
-    font-size: 14px;
-    color: var(--color-gray-700);
-    line-height: 1.6;
-}
-
-.notes-box.empty { color: var(--color-gray-400); font-style: italic; }
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: var(--radius-sm);
-    border: none;
-    cursor: pointer;
-    font-family: var(--font-body);
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
-    transition: all var(--transition-fast);
-    text-decoration: none;
-    white-space: nowrap;
-    justify-content: center;
+    color: #2a0f1f;
 }
 
-.btn-primary { background: var(--color-primary); color: white; }
-.btn-primary:hover { background: var(--color-primary-dark); }
+/* NOTES */
+.notes-box {
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    padding: var(--spacing-lg);
+    border: 1px solid rgba(255,255,255,0.5);
+}
 
-.btn-warning { background: #e67e22; color: white; }
-.btn-warning:hover { background: #d35400; }
+/* =========================================
+   🔥 BOTONES PRO
+========================================= */
+.btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+}
 
-.btn-secondary { background: white; color: var(--color-gray-700); border: 1.5px solid var(--color-gray-300); }
-.btn-secondary:hover { border-color: var(--color-gray-500); color: var(--color-dark); }
+/* PRIMARY */
+.btn-primary {
+    background: linear-gradient(135deg, #ff4da6, #e60073);
+    color: white;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
 
-.btn-danger-outline { background: white; color: var(--color-danger); border: 1.5px solid var(--color-danger); }
-.btn-danger-outline:hover { background: var(--color-danger); color: white; }
+/* EDIT */
+.btn-warning {
+    background: rgba(255,165,0,0.2);
+    color: #e67e22;
+}
 
-/* Delete confirm */
+/* CANCEL */
+.btn-secondary {
+    background: rgba(0,0,0,0.05);
+    color: #2a0f1f;
+}
+
+/* DELETE */
+.btn-danger-outline {
+    border: 1px solid #ff4da6;
+    color: #ff4da6;
+    background: transparent;
+}
+.btn-danger-outline:hover {
+    background: #ff4da6;
+    color: white;
+}
+
+/* =========================================
+   ⚠️ MODAL DELETE
+========================================= */
 .confirm-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 9000;
-    align-items: center;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(6px);
     justify-content: center;
-    padding: var(--spacing-lg);
+    align-items: center;
 }
 .confirm-overlay.active { display: flex; }
+
 .confirm-card {
     background: white;
-    border-radius: var(--radius-lg);
     padding: var(--spacing-2xl);
-    max-width: 400px;
-    width: 100%;
+    border-radius: 20px;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-    animation: slideUp 0.25s ease;
 }
-@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
-.confirm-icon { font-size: 52px; margin-bottom: var(--spacing-md); }
-.confirm-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; margin-bottom: var(--spacing-sm); }
-.confirm-msg { color: var(--color-gray-500); font-size: 14px; line-height: 1.6; margin-bottom: var(--spacing-xl); }
-.confirm-actions { display: flex; gap: var(--spacing-md); justify-content: center; }
 
+/* =========================================
+   📱 RESPONSIVE
+========================================= */
 @media (max-width: 900px) {
-    .detail-layout { grid-template-columns: 1fr; }
-    .detail-sidebar { position: static; }
-    .detail-grid { grid-template-columns: 1fr; }
-    .sidebar-actions { flex-direction: row; flex-wrap: wrap; }
-    .btn { flex: 1; min-width: 120px; }
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
 }
+
 </style>
 {% endblock %}
-
-{% block content %}
-<div class="container">
-  <div class="detail-page">
-
-    <a href="{{ url_for('usuarios') }}" class="back-link">← Volver a Usuarios</a>
-
-    <div class="detail-layout">
-
-      <!-- SIDEBAR -->
-      <div class="detail-sidebar">
-        <div class="sidebar-header">
-          <div class="user-avatar-large">
-            {{ (usuario.nombre[0] + (usuario.apellido[0] if usuario.apellido else '?')).upper() }}
-          </div>
-          <div class="user-full-name">{{ usuario.nombre }} {{ usuario.apellido or '' }}</div>
-          <div class="user-email">{{ usuario.correo }}</div>
-        </div>
-
-        <div class="sidebar-badges">
-          <div class="badge-row">
-            <span class="badge-label">Rol</span>
-            {% if usuario.rol == 'admin' %}
-              <span class="badge badge-admin">🛡 Admin</span>
-            {% elif usuario.rol == 'editor' %}
-              <span class="badge badge-editor">✏️ Editor</span>
-            {% elif usuario.rol == 'viewer' %}
-              <span class="badge badge-viewer">👁 Visor</span>
-            {% else %}
-              <span class="badge badge-user">👤 Usuario</span>
-            {% endif %}
-          </div>
-          <div class="badge-row">
-            <span class="badge-label">Estado</span>
-            {% if usuario.estado == 'activo' %}
-              <span class="badge badge-active">✅ Activo</span>
-            {% else %}
-              <span class="badge badge-inactive">⛔ Inactivo</span>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="sidebar-meta">
-          <div class="meta-item">
-            <span class="meta-label">ID de usuario</span>
-            <span class="meta-value">#{{ usuario.id }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Fecha de registro</span>
-            <span class="meta-value">{{ usuario.fechaRegistro or '—' }}</span>
-          </div>
-          {% if usuario.telefono %}
-          <div class="meta-item">
-            <span class="meta-label">Teléfono</span>
-            <span class="meta-value">{{ usuario.telefono }}</span>
-          </div>
-          {% endif %}
-          {% if usuario.ciudad or usuario.pais %}
-          <div class="meta-item">
-            <span class="meta-label">Ubicación</span>
-            <span class="meta-value">{{ usuario.ciudad or '' }}{% if usuario.ciudad and usuario.pais %}, {% endif %}{{ usuario.pais or '' }}</span>
-          </div>
-          {% endif %}
-        </div>
-
-        <div class="sidebar-actions">
-          <a href="{{ url_for('usuario_editar', uid=usuario.id) }}" class="btn btn-warning">✏️ Editar Usuario</a>
-          {% if session.usuario_id != usuario.id %}
-          <button class="btn btn-danger-outline" onclick="document.getElementById('confirmDelete').classList.add('active')">🗑 Eliminar</button>
-          {% endif %}
-          <a href="{{ url_for('usuarios') }}" class="btn btn-secondary">← Volver</a>
-        </div>
-      </div>
-
-      <!-- MAIN -->
-      <div class="detail-main">
-
-        <!-- Información personal -->
-        <div class="detail-card">
-          <div class="detail-card-header">
-            <span>👤</span>
-            <div class="detail-card-title">Información Personal</div>
-          </div>
-          <div class="detail-card-body">
-            <div class="detail-grid">
-              <div class="detail-item">
-                <label>Nombre</label>
-                <div class="detail-value">{{ usuario.nombre }}</div>
-              </div>
-              <div class="detail-item">
-                <label>Apellido</label>
-                <div class="detail-value {% if not usuario.apellido %}empty{% endif %}">{{ usuario.apellido or 'Sin apellido' }}</div>
-              </div>
-              <div class="detail-item">
-                <label>Correo electrónico</label>
-                <div class="detail-value">{{ usuario.correo }}</div>
-              </div>
-              <div class="detail-item">
-                <label>Teléfono</label>
-                <div class="detail-value {% if not usuario.telefono %}empty{% endif %}">{{ usuario.telefono or 'No registrado' }}</div>
-              </div>
-              <div class="detail-item">
-                <label>Fecha de nacimiento</label>
-                <div class="detail-value {% if not usuario.nacimiento %}empty{% endif %}">{{ usuario.nacimiento or 'No registrada' }}</div>
-              </div>
-              <div class="detail-item">
-                <label>Fecha de registro</label>
-                <div class="detail-value">{{ usuario.fechaRegistro or '—' }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ubicación -->
-        <div class="detail-card">
-          <div class="detail-card-header">
-            <span>📍</span>
-            <div class="detail-card-title">Ubicación</div>
-          </div>
-          <div class="detail-card-body">
-            <div class="detail-grid">
-              <div class="detail-item" style="grid-column: 1 / -1;">
-                <label>Dirección</label>
-                <div class="detail-value {% if not usuario.direccion %}empty{% endif %}">{{ usuario.direccion or 'Sin dirección registrada' }}</div>
-              </div>
-              <div class="detail-item">
-                <label>Ciudad</label>
-                <div class="detail-value {% if not usuario.ciudad %}empty{% endif %}">{{ usuario.ciudad or 'No registrada' }}</div>
-              </div>
-              <div class="detail-item">
-                <label>País</label>
-                <div class="detail-value {% if not usuario.pais %}empty{% endif %}">{{ usuario.pais or 'No registrado' }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Notas -->
-        <div class="detail-card">
-          <div class="detail-card-header">
-            <span>📝</span>
-            <div class="detail-card-title">Notas Internas</div>
-          </div>
-          <div class="detail-card-body">
-            <div class="notes-box {% if not usuario.notas %}empty{% endif %}">
-              {{ usuario.notas or 'Sin notas registradas para este usuario.' }}
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Confirm Delete -->
-<div class="confirm-overlay" id="confirmDelete">
-  <div class="confirm-card">
-    <div class="confirm-icon">🗑️</div>
-    <div class="confirm-title">¿Eliminar usuario?</div>
-    <p class="confirm-msg">Esta acción no se puede deshacer. ¿Seguro que deseas eliminar a <strong>{{ usuario.nombre }} {{ usuario.apellido or '' }}</strong>?</p>
-    <div class="confirm-actions">
-      <button class="btn btn-secondary" onclick="document.getElementById('confirmDelete').classList.remove('active')">Cancelar</button>
-      <button class="btn btn-danger-outline" onclick="executeDelete()">Sí, eliminar</button>
-    </div>
-  </div>
-</div>
-{% endblock %}
-
 {% block extra_js %}
 <script>
 async function executeDelete() {
